@@ -1,0 +1,22 @@
+[workspace.package]
+edition = "2021"
+publish = false
+version = "0.1.0"
+
+[workspace]
+members = ["wordle-game", "wordle-game-io", "wordle-game-session", "wordle-game-session-io"]
+resolver = "2"
+
+[workspace.dependencies]
+gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.7.0" }
+gmeta = { git = "https://github.com/gear-tech/gear.git", tag = "v1.7.0" }
+gtest = { git = "https://github.com/gear-tech/gear.git", tag = "v1.7.0" }
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.7.0" }
+
+wordle-game = {path = "./wordle-game"}
+wordle-game-io = {path = "./wordle-game-io"}
+wordle-game-session = {path = "./wordle-game-session"}
+wordle-game-session-io = {path = "./wordle-game-session-io"}
+
+parity-scale-codec = {version = "3", default-features = false}
+scale-info = {version = "2", default-features = false}
