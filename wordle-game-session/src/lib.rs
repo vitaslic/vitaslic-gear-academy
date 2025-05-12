@@ -6,8 +6,6 @@ use wordle_game_session_io::*;
 
 static mut WORDLE_STATE: Option<WordleState> = None;
 
-const COUNT_WORD: usize = 5;
-
 fn get_wordle_state() -> &'static mut WordleState {
     unsafe {
         let game_state = WORDLE_STATE
@@ -162,28 +160,6 @@ unsafe extern "C" fn handle_reply() {
         WordleStatus::GameStartMessageSent { orig_id, sent_id } if reply_to == sent_id => {
             wake(orig_id).expect("Failed to wake message");
             state.status = WordleStatus::GameStartMessageReceived { event };
-        }
-        WordleStatus::CheckWordMessageSent { orig_id, sent_id } if reply_to == sent_id => {
-            wake(orig_id).expect("Failed to wake message");
-
-            if let wordle_game_io::Event::WordChecked {
-                user: _,
-                ref correct_positions,
-                ref contained_in_word,
-            } = event
-            {
-                if correct_positions.len() == COUNT_WORD && contained_in_word.is_empty() {
-                    state.status = WordleStatus::GameOver(WordlePlayerStatus::Win);
-                    return;
-                } else {
-                    state.count_attemps -= 1;
-                    if state.count_attemps == 0 {
-                        state.status = WordleStatus::GameOver(WordlePlayerStatus::Loose);
-                        return;
-                    }
-                }
-            }
-            state.status = WordleStatus::CheckWordMessageReceived { event };
         }
         _ => todo!(),
     };
