@@ -4,6 +4,8 @@ use gstd::exec::*;
 use gstd::{exec, msg, prelude::*};
 use wordle_game_session_io::*;
 
+const COUNT_WORD: usize = 5;
+
 static mut WORDLE_STATE: Option<WordleState> = None;
 
 fn get_wordle_state() -> &'static mut WordleState {
@@ -105,9 +107,19 @@ unsafe extern "C" fn handle() {
             match event {
                 wordle_game_io::Event::WordChecked {
                     user: _,
-                    correct_positions: _,
-                    contained_in_word: _,
+                    ref correct_positions,
+                    ref contained_in_word,
                 } => {
+                    if correct_positions.len() == COUNT_WORD && contained_in_word.is_empty() {
+                        state.status = WordleStatus::GameOver(WordlePlayerStatus::Win);
+                        return;
+                    } else {
+                        state.count_attemps -= 1;
+                        if state.count_attemps == 0 {
+                            state.status = WordleStatus::GameOver(WordlePlayerStatus::Loose);
+                            return;
+                        }
+                    }
                     state.status = WordleStatus::GameStarted;
                     msg::reply(WordleEvent::CheckWordSuccess(send_event), 0)
                         .expect("Failed to reply");
